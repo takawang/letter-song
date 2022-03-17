@@ -15,7 +15,7 @@ class ViewController: UIViewController {
   
   var player: AVPlayer?
   var timer: Timer?
-  var counter : Double = 0.0
+  var counter = 0.0
   var isPlaying = false
   
   override func viewDidLoad() {
