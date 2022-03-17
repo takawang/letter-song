@@ -10,14 +10,13 @@ import AVKit
 import UIKit
 
 class ViewController: UIViewController {
-
-  var player: AVPlayer?
-  var timer: Timer?
-  var counter : Double?
-  var isPlaying = false
-  
   @IBOutlet weak var lyricsLabel: UILabel!
   @IBOutlet weak var videoView: UIView!
+  
+  var player: AVPlayer?
+  var timer: Timer?
+  var counter : Double = 0.0
+  var isPlaying = false
   
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -33,15 +32,15 @@ class ViewController: UIViewController {
     // ref: https://www.tutorialspoint.com/how-to-use-swift-to-detect-when-avplayer-video-ends-playing
     NotificationCenter.default.addObserver(self, selector: #selector(self.videoDidEnd),
                                            name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: nil)
-
+    
     // setup avplayer controller
     initVideoView()
     
   }
-    
-  // Init video view
+  
+  // setup avplayer controller
   //
-  // add av player controller to current view and hide playback controls
+  // add avplayer controller to the current view and hide playback controls
   private func initVideoView() {
     // ref: https://medium.com/@nabilsafatli/how-to-create-a-custom-control-for-avplayer-1e53b9188ae3
     guard let url = Bundle.main.url(forResource: "night", withExtension: "mp4") else { return }
@@ -52,7 +51,7 @@ class ViewController: UIViewController {
     let playerViewController = AVPlayerViewController()
     playerViewController.player = self.player
     playerViewController.view.frame = playerFrame
-
+    
     addChild(playerViewController) // add player controller to view controller
     videoView.addSubview(playerViewController.view)
     playerViewController.didMove(toParent: self)
@@ -60,13 +59,11 @@ class ViewController: UIViewController {
     playerViewController.showsPlaybackControls = false // hide playback controls
   }
   
-
- 
   // handle play click event
   @IBAction func playVideo(_ sender: UIButton) {
-    if !isPlaying {
+    if !self.isPlaying {
       
-      isPlaying = true // set flag
+      self.isPlaying = true // set flag
       self.counter = 0.0 // init counter
       self.player?.seek(to: CMTime(value: CMTimeValue(0.0), timescale: 1000)) // seek to head
       
@@ -87,11 +84,11 @@ class ViewController: UIViewController {
   }
   
   @objc func updateLyrics() {
-    self.counter? += 0.1 // increase counter
+    self.counter += 0.1 // increase counter
     
-    switch self.counter! {
+    switch self.counter {
     case 5.0...20.0:
-      self.lyricsLabel.text = "IU - 夜信" // 1
+      self.lyricsLabel.text = "IU - 夜信" // 0
     case 24.4...37.4:
       self.lyricsLabel.text = "今晚  我想將那天的螢火" // 1
     case 37.5...47.0:
@@ -139,7 +136,7 @@ class ViewController: UIViewController {
     case 242.0...249.7:
       self.lyricsLabel.text = "送到你的窗前" // 26
     case 255.9...267.2:
-      self.lyricsLabel.text = "希望今夜的你有個美好的夢" // 26
+      self.lyricsLabel.text = "希望今夜的你有個美好的夢" // 27
     default:
       self.lyricsLabel.text = ""
     }
@@ -148,7 +145,7 @@ class ViewController: UIViewController {
   // handle vidie end notification
   // ref: https://www.tutorialspoint.com/how-to-use-swift-to-detect-when-avplayer-video-ends-playing
   @objc func videoDidEnd(notification: NSNotification) {
-     print("video ended")
+    print("video ended")
     self.timer?.invalidate() // stop timer
     self.isPlaying = false
     self.lyricsLabel.text = ""
@@ -157,19 +154,18 @@ class ViewController: UIViewController {
   // handle activity resume and close
   // ref: https://stackoverflow.com/a/45955660
   @objc func openAndCloseActivity(_ notification: Notification)  {
-      if notification.name == UIApplication.didBecomeActiveNotification{
-        print("resume activity")
-        
-        // seek to head
-        self.player?.seek(to: CMTime(value: CMTimeValue(0.0), timescale: 1000)) // ref: https://stackoverflow.com/a/59839041
-      } else{
-        print("close activity")
-        
-        self.player?.pause() // pause player
-        self.timer?.invalidate() // stop timer
-        self.isPlaying = false
-        self.lyricsLabel.text = ""
-      }
+    if notification.name == UIApplication.didBecomeActiveNotification{
+      print("resume activity")
+      
+      // seek to head
+      self.player?.seek(to: CMTime(value: CMTimeValue(0.0), timescale: 1000)) // ref: https://stackoverflow.com/a/59839041
+    } else{
+      print("close activity")
+      
+      self.player?.pause() // pause player
+      self.timer?.invalidate() // stop timer
+      self.isPlaying = false
+      self.lyricsLabel.text = ""
+    }
   }
 }
-
